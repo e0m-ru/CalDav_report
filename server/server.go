@@ -47,10 +47,14 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunServer() {
-	http.HandleFunc("/echo", echo)
-	http.HandleFunc("/", mainPage)
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/echo", echo)
+	mux.HandleFunc("/", mainPage)
+
 	fmt.Println("Server listening on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
 func PrintDetails(w *http.ResponseWriter, v ...interface{}) {
