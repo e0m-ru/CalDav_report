@@ -1,0 +1,27 @@
+<div class="event-card">
+    {{- if .Component.Props.SUMMARY -}}
+        <h2>{{(index .Component.Props.SUMMARY 0).Value}}</h2>
+    {{- end -}}
+    <div class="time">
+        {{- if .Component.Props.DTSTART -}}
+            <strong>Start:</strong> {{(index .Component.Props.DTSTART 0).Value}}<br>
+        {{- end -}}
+        {{- if .Component.Props.DTEND -}}
+            <strong>End:</strong> {{(index .Component.Props.DTEND 0).Value}}
+        {{- end -}}
+    </div>
+    <div class="description"><strong>Description: </strong>
+        {{- if .Component.Props.DESCRIPTION -}}
+            {{(index .Component.Props.DESCRIPTION 0).Value}}
+        {{- end -}}
+    </div>
+    <address><strong>Location: </strong>
+        {{- if .Component.Props.LOCATION -}}
+            {{(index .Component.Props.LOCATION 0).Value}}
+        {{- end -}}
+    </address>
+</div>
+
+
+
+
