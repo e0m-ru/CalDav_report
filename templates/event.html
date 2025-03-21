@@ -1,6 +1,6 @@
-<div class="event-card">
+<div class="event-card" style="background-color: darkgrey;">
     {{- if .Component.Props.SUMMARY -}}
-        <h2>{{(index .Component.Props.SUMMARY 0).Value}}</h2>
+        <h4>{{(index .Component.Props.SUMMARY 0).Value}}</h4>
     {{- end -}}
     <div class="time">
         {{- if .Component.Props.DTSTART -}}
