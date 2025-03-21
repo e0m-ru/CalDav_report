@@ -3,102 +3,87 @@ package caldavclient
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"html/template"
-	"io"
-	"strings"
+	"log"
 	"time"
 
-	"github.com/e0m-ru/yacaldav"
 	"github.com/emersion/go-ical"
+	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
+	"github.com/google/uuid"
 )
 
-type MonthReport struct {
-	calName string
-	claList []caldav.CalendarObject
-	html    string
+var (
+	dateFormatString = "2006-01-02"
+)
+
+func NewCalDavClient(user, pwd, url string) (caldav.Client, error) {
+	c := webdav.HTTPClientWithBasicAuth(nil, user, pwd)
+	client, err := caldav.NewClient(c, url)
+	return client, err
 }
 
-func Report(client *caldav.Client) (MonthReport, error) {
-	ctx := context.Background()
-	now := time.Now()
-	year := now.Year()
-	date := time.Date(year, time.Now().Month(), 1, 0, 0, 0, 0, time.Local)
-	lst, err := yacaldav.GetCalendarsList(client)
+func GetCalendars(ctx context.Context, client caldav.Client) (calendars []caldav.Calendar, err error) {
+
+	principal, err := client.FindCurrentUserPrincipal(ctx)
 	if err != nil {
-		return MonthReport{}, err
+		return calendars, err
 	}
-	var report MonthReport
-	var s strings.Builder
-	for _, calendar := range lst {
-		report.calName = calendar.Name
-		l, err := client.QueryCalendar(ctx, calendar.Path, yacaldav.BuildMonthRangeQuery(date))
-		if err != nil {
-			report.claList = l
-			return report, err
-		}
-		PrintAllCalendarsData(&s, l)
+	homeset, err := client.FindCalendarHomeSet(ctx, principal)
+	if err != nil {
+		return calendars, err
 	}
-	report.html = s.String()
-	return report, nil
+	calendars, err = client.FindCalendars(ctx, homeset)
+	if err != nil {
+		return calendars, err
+	}
+	return calendars, err
 }
 
-func PrintAllCalendarsData(w io.Writer, calendarList []caldav.CalendarObject) {
-	for _, c := range calendarList {
-		tmpl, err := template.ParseGlob("templates/event.html")
-		if err != nil {
-			panic(err)
-		}
-		for _, e := range c.Data.Events() {
-			fmt.Fprintf(w, "<div>%s\n</div>", printEvent(e, tmpl))
-		}
+func BuildDateRangeQuery(start, end time.Time) caldav.CalendarQuery {
+	compFilter := caldav.CompFilter{
+		Name: "VCALENDAR",
+		Props: []caldav.PropFilter{
+			{Name: "Name"},
+		},
+		Comps: []caldav.CompFilter{{
+			Name:  "VEVENT",
+			Start: start,
+			End:   end,
+			// Props: []caldav.PropFilter{{
+			// 	Name: "SUMMARY",
+			// 	TextMatch: &caldav.TextMatch{
+			// 		Text: "ОТТ",
+			// 	},
+			// }},
+		}},
 	}
+	query := caldav.CalendarQuery{
+		CompFilter: compFilter,
+	}
+	return query
 }
 
-func printEvent(cal ical.Event, template *template.Template) string {
-	startTime, _ := cal.DateTimeStart(time.Local)
-	endTime, _ := cal.DateTimeEnd(time.Local)
-
-	data := struct {
-		StartDate   string
-		StartTime   string
-		EndDate     string
-		EndTime     string
-		UID         string
-		Title       string
-		Location    string
-		Description string
-	}{
-		StartDate:   startTime.Format("2006-01-02"),
-		StartTime:   startTime.Format("15:04"),
-		EndDate:     "",
-		EndTime:     endTime.Format("15:04"),
-		UID:         getPropText(cal, ical.PropUID),
-		Title:       getPropText(cal, ical.PropSummary),
-		Location:    getPropText(cal, ical.PropLocation),
-		Description: getPropText(cal, ical.PropDescription),
-	}
-
-	sy, sm, sd := startTime.Date()
-	ey, em, ed := endTime.Date()
-	if sy != ey || sm != em || sd != ed {
-		data.EndDate = endTime.Format("2006-01-02")
-	}
-
-	var tpl bytes.Buffer
-	if err := template.Execute(&tpl, cal); err != nil {
-		return fmt.Sprintf("Error executing template: %v", err)
-	}
-
-	return tpl.String()
+func NewEvent(title, desc, loc string, st, et time.Time) *ical.Event {
+	event := ical.NewEvent()
+	uid := uuid.New().String()
+	event.Props.SetText(ical.PropUID, uid)
+	event.Props.SetDateTime(ical.PropDateTimeStamp, time.Now())
+	event.Props.SetText(ical.PropSummary, title)
+	event.Props.SetText(ical.PropDescription, desc)
+	event.Props.SetText(ical.PropLocation, loc)
+	event.Props.SetDateTime(ical.PropDateTimeStart, st)
+	event.Props.SetDateTime(ical.PropDateTimeEnd, et)
+	return event
 }
 
-func getPropText(cal ical.Event, propName string) string {
-	prop := cal.Props.Get(propName)
-	if prop != nil {
-		text, _ := prop.Text()
-		return text
+func NewCalendar(event *ical.Event) *ical.Calendar {
+	cal := ical.NewCalendar()
+	cal.Props.SetText(ical.PropVersion, "2.0")
+	cal.Props.SetText(ical.PropProductID, "ittsc 2025")
+	cal.Children = append(cal.Children, event.Component)
+	var buf bytes.Buffer
+	if err := ical.NewEncoder(&buf).Encode(cal); err != nil {
+		log.Fatal(err)
 	}
-	return ""
+	return cal
 }

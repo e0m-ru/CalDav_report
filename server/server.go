@@ -7,10 +7,6 @@ import (
 	"reflect"
 
 	"encoding/json"
-
-	"github.com/e0m-ru/echoserver/caldavclient"
-	"github.com/e0m-ru/yacaldav"
-	"github.com/e0m-ru/yacaldav/config"
 )
 
 func echo(w http.ResponseWriter, r *http.Request) {
@@ -33,17 +29,8 @@ func echo(w http.ResponseWriter, r *http.Request) {
 }
 
 func mainPage(w http.ResponseWriter, r *http.Request) {
-	C := config.LoadConifg()
-	client, err := yacaldav.NewCalDavClient(C.YaAuth.YAUSER, C.YaAuth.CALPWD, C.YaAuth.YACAL)
-	if err != nil {
-		panic(err)
-	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	cdmr, err := caldavclient.Report(client)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Fprint(w, cdmr)
+	//TODO
 }
 
 func RunServer() {
