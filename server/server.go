@@ -101,6 +101,9 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 	close(out)
 
 	for v := range out {
+		if v.err != nil {
+			http.Error(w, v.err.Error(), http.StatusInternalServerError)
+		}
 		(*R.Reports)[v.name] = v.objList
 	}
 

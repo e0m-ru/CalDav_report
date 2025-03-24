@@ -42,19 +42,14 @@ func GetCalendars(ctx context.Context, client caldav.Client) (calendars []caldav
 func BuildDateRangeQuery(start, end time.Time) caldav.CalendarQuery {
 	compFilter := caldav.CompFilter{
 		Name: "VCALENDAR",
-		Props: []caldav.PropFilter{
-			{Name: "Name"},
-		},
+		// Props: []caldav.PropFilter{
+		// 	{Name: "getetag"},
+		// 	{Name: "getcontenttype"},
+		// },
 		Comps: []caldav.CompFilter{{
 			Name:  "VEVENT",
 			Start: start,
 			End:   end,
-			// Props: []caldav.PropFilter{{
-			// 	Name: "SUMMARY",
-			// 	TextMatch: &caldav.TextMatch{
-			// 		Text: "ОТТ",
-			// 	},
-			// }},
 		}},
 	}
 	query := caldav.CalendarQuery{
