@@ -1,25 +1,50 @@
-<div class="event-card" style="background-color: darkgrey;">
-    {{- if .Component.Props.SUMMARY -}}
-    <h4>{{(index .Component.Props.SUMMARY 0).Value}}</h4>
-    {{- end -}}
-    <div class="time">
-        {{- $tz := .Component.Props }}
-        {{- if .Component.Props.DTSTART -}}
-        <strong>Start:</strong> {{ (index .Component.Props.DTSTART 0).Value }}<br>
-        {{- end -}}
-        {{- if .Component.Props.DTEND -}}
-        <strong>End:</strong> {{(index .Component.Props.DTEND 0).Value }}
-        {{- end -}}
-    </div>
-    <div class="description"><strong>Description: </strong>
-        {{- if (index .Component.Props.DESCRIPTION 0) -}}
-        {{(index .Component.Props.DESCRIPTION 0).Text}}
-        {{- end -}}
-    </div>
-    <address><strong>Location: </strong>
-        {{- if .Component.Props.LOCATION -}}
-        {{(index .Component.Props.LOCATION 0).Value}}
-        {{- end -}}
-    </address>
-</div>
-</br>
+{{ $Tz := .Tz }} 
+{{ $MAIN := . }} 
+<tr>
+    {{ if .Event.Component.Props.DTSTART }}
+    <td scope="row">
+        {{ range $e := .Event.Component.Props.DTSTART }}
+                {{ ($e.DateTime $Tz).Format "02" }}
+    </td>
+    <td>
+        {{ ($e.DateTime $Tz).Format "15:04" }}
+            {{ end }}
+    </td>
+    {{ end }}
+
+    <td>
+        {{ if .Event.Component.Props.DTEND }}
+            {{ range $e := .Event.Component.Props.DTEND }}
+                {{ ($e.DateTime $Tz).Format "15:04" }}
+            {{ end }}
+        {{ end }}
+    </td>
+    <td>
+        {{ if .Event.Component.Props.LOCATION }}
+            {{ range $e := .Event.Component.Props.LOCATION}}
+                {{ .Value }}
+            {{ end }}
+        {{ else }}
+            {{ if .Event.Props.CATEGORIES }}
+                {{ (index .Event.Props.CATEGORIES 0).Value }}
+            {{ else }}
+                {{ .Name }}
+            {{ end }}
+        {{ end }}
+    </td>
+    <td style="overflow: hidden;">
+            {{ if .Event.Component.Props.SUMMARY }}
+                {{ range $e := .Event.Component.Props.SUMMARY }}
+                    {{ call $MAIN.GetText .}}
+                {{ end }}
+            {{ end }}
+        </td>
+
+    <td >
+        {{ if .Event.Component.Props.DESCRIPTION }}
+            {{ range $e := .Event.Component.Props.DESCRIPTION }}
+                {{ call $MAIN.GetText .}}
+            {{ end }}
+        {{ end }}
+    </td>
+</tr>

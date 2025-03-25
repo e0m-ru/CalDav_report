@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/e0m-ru/echoserver/caldavclient"
+	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
 )
 
@@ -76,30 +78,48 @@ func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	// Инициализация шаблона
-	tmpl, err := template.ParseGlob("templates/event.html")
+	tmpl, err := template.New("CalDav").ParseGlob("templates/*")
 	if err != nil {
-		fmt.Fprint(w, err)
+		fmt.Print(err)
 		return
 	}
-
+	err = tmpl.ExecuteTemplate(
+		w,
+		"index.html",
+		"",
+	)
 	for k, v := range *r.Reports {
-		fmt.Fprintf(w, "<h1>-----CALENDAR %s-------</h1>\n", k)
-		for _, e := range *v {
-			err = tmpl.Execute(w, e.Data.Events()[0])
-			if err != nil {
-				fmt.Fprint(w, err)
+		for _, events := range *v {
+			for _, e := range events.Data.Events() {
+				err = tmpl.ExecuteTemplate(
+					w,
+					"event.html",
+					dataForTemplate{
+						Name:    k,
+						Event:   e,
+						Tz:      time.Now().Location(),
+						GetText: GetText,
+					})
+				if err != nil {
+					fmt.Fprint(w, err)
+				}
 			}
-
-			// p := e.Data.Events()[0].Component.Props
-			// ds, err := p.Get(ical.PropDateTimeStart).DateTime(time.Now().Location())
-			// if err != nil {
-			// 	fmt.Fprint(w, err)
-			// }
-			// s, err := p.Get(ical.PropSummary).Text()
-			// if err != nil {
-			// 	fmt.Fprint(w, err)
-			// }
-			// fmt.Fprintf(w, "    %s\n    %s\n", ds, s)
 		}
 	}
+}
+
+type dataForTemplate struct {
+	Name    string
+	Event   ical.Event
+	Tz      *time.Location
+	GetText func(ical.Prop) string
+}
+
+func GetText(p ical.Prop) string {
+	text, err := p.Text()
+	if err != nil {
+		s := strings.Replace(p.Value, "\\", "", -1)
+		return s
+	}
+	return text
 }
