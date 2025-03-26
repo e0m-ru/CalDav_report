@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
+    <!-- <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script> -->
     <title></title>
 </head>
 <body>
@@ -12,7 +12,7 @@
         {{ block "content" . }}{{ end }}
     </main>
     {{ template "footer.html" . }}
-<script>
+<!-- <script>
     window.YaAuthSuggest.init(
             {
                 client_id: "cb33315b817847b3a8ae038ca7b8fa11",
@@ -25,6 +25,6 @@
             .then(({ handler }) => handler())
             .then(data => console.log('Сообщение с токеном', data))
             .catch(error => console.log('Обработка ошибки', error))
-</script>
+</script> -->
 </body>
 </html>

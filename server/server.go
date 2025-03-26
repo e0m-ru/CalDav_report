@@ -138,7 +138,8 @@ func RunServer() {
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
 	fmt.Println("Server listening on http://localhost:8080")
-	log.Fatal(http.ListenAndServeTLS(":8080", "go-server.crt", "go-server.key", mux))
+	log.Fatal(http.ListenAndServe(":8080", mux))
+	// log.Fatal(http.ListenAndServeTLS(":8080", "go-server.crt", "go-server.key", mux))
 }
 
 func PrintDetails(w *http.ResponseWriter, v ...interface{}) {
