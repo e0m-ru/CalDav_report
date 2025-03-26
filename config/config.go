@@ -25,7 +25,11 @@ type logConfig struct {
 	Level int
 }
 
+type reportConfig struct {
+}
+
 type Config struct {
+	Report    reportConfig
 	ProductID string
 	AppName   string
 	YaAuth    yacaldavConfig
@@ -45,6 +49,7 @@ func LoadConifg() *Config {
 		log.Fatalf("Error converting LOGLEVEL to integer: %v", err)
 	}
 	return &Config{
+		Report: reportConfig{},
 		YaAuth: yacaldavConfig{
 			YAUSER: getEnv("YAUSER", "user@yandex.ru"),
 			CALPWD: getEnv("CALPWD", "PA$$w0rD"),

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
+    <title></title>
+</head>
+<body>
+    {{ template "header.html" . }}
+    <main>
+        {{ block "content" . }}{{ end }}
+    </main>
+    {{ template "footer.html" . }}
+<script>
+    window.YaAuthSuggest.init(
+            {
+                client_id: "cb33315b817847b3a8ae038ca7b8fa11",
+                response_type: "token",
+                redirect_uri: "https://x.e0m.ru/report"
+            },
+            "https://x.e0m.ru",
+            { view: "default" }
+        )
+            .then(({ handler }) => handler())
+            .then(data => console.log('Сообщение с токеном', data))
+            .catch(error => console.log('Обработка ошибки', error))
+</script>
+</body>
+</html>

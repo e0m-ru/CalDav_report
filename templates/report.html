@@ -4,33 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/css/style.css" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
+    <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-token-with-polyfills-latest.js"></script>
         <title>Отчёт</title>
-        <style>
-            th {
-                cursor: pointer;
-                user-select: none;
-            }
-        
-            th.sortable::after {
-                content: ' ↕';
-                font-size: 0.8em;
-            }
-        
-            th.asc::after {
-                content: ' ▲';
-                color: green;
-            }
-        
-            th.desc::after {
-                content: ' ▼';
-                color: red;
-            }
-        </style>
 </head>
 <body>
     <table id="sortableTable" class="table table-primary table-hover table-bordered">
@@ -39,21 +20,22 @@
                 <th scope="col" class="sortable">дата</th>
                 <th scope="col" class="sortable">место</th>
                 <th scope="col" class="sortable">заголовок</th>
-                <th scope="col" class="sortable">фото</th>
-                <th scope="col" class="sortable">видео</th>
-                <th scope="col" class="sortable">звук</th>
-                <th scope="col" class="sortable">синхрон</th>
-                <th scope="col" class="sortable">транс</th>
-                <th scope="col" class="sortable">зкран</th>
-
+                <th>фото&nbsp;</th>
+                <th>видео</th>
+                <th>звук&nbsp;</th>
+                <th>синх&nbsp;</th>
+                <th>транс</th>
+                <th>зкран</th>
                 <th scope="col" >начало</th>
                 <th scope="col" >конец</th>
                 <th scope="col" >детали</th>
             </tr>
         </thead>
-        {{ block "event.html" .}}
-        {{ end }}
+        {{ template "event.html" .}}
     </table>
 </body>
+<script>
+    YaSendSuggestToken('https://x.e0m.ru:8080/report')
+</script>
 </html>
 {{ end }}

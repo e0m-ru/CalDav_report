@@ -1,1 +1,20 @@
 @import url("styles.css");
+th {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable::after {
+    content: ' ↕';
+    font-size: 0.8em;
+}
+
+th.asc::after {
+    content: ' ▲';
+    color: green;
+}
+
+th.desc::after {
+    content: ' ▼';
+    color: red;
+}

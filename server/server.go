@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"reflect"
@@ -110,15 +111,34 @@ func reportPage(w http.ResponseWriter, r *http.Request) {
 	R.PrintReport(w)
 }
 
+func mainPage(w http.ResponseWriter, r *http.Request) {
+	// Инициализация шаблона
+	tmpl, err := template.New("Main").ParseGlob("templates/*")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tmpl.ExecuteTemplate(
+		w,
+		"base.html",
+		"",
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
 func RunServer() {
 	mux := http.NewServeMux()
 	fs := http.FileServer(http.Dir("static/"))
 	mux.HandleFunc("/echo", echo)
 	mux.HandleFunc("/report", reportPage)
+	mux.HandleFunc("/", mainPage)
 	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
 	fmt.Println("Server listening on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServeTLS(":8080", "go-server.crt", "go-server.key", mux))
 }
 
 func PrintDetails(w *http.ResponseWriter, v ...interface{}) {

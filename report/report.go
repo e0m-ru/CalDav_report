@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"mime"
 	"net/http"
 	"strings"
 	"time"
@@ -76,8 +77,7 @@ func (r *DateRangeReport) QueryCalendarData(calendar caldav.Calendar) (lst []cal
 }
 
 func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
+	mime.AddExtensionType(".css", "text/css") // Ensure correct MIME type for CSS files
 	// Инициализация шаблона
 	tmpl, err := template.New("CalDav").ParseGlob("templates/*")
 	if err != nil {
@@ -101,12 +101,12 @@ func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 						Tz:      time.Now().Location(),
 						GetText: GetText,
 						Works: []string{
-							"фото",
-							"видео",
-							"звук",
-							"синхрон",
-							"трансляция",
-							"экран",
+							"Ф",
+							"В",
+							"З",
+							"С",
+							"Т",
+							"Э",
 						},
 					})
 				if err != nil {
