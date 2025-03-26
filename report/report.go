@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -99,6 +100,14 @@ func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 						Event:   e,
 						Tz:      time.Now().Location(),
 						GetText: GetText,
+						Works: []string{
+							"фото",
+							"видео",
+							"звук",
+							"синхрон",
+							"трансляция",
+							"экран",
+						},
 					})
 				if err != nil {
 					fmt.Fprint(w, err)
@@ -106,10 +115,19 @@ func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 			}
 		}
 	}
+	_, err = fmt.Fprint(w, `</table>
+	        <script src='static/js/tablesort.js'></script>
+</body>
+</html>`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
 type dataForTemplate struct {
 	Name    string
+	Works   []string
 	Event   ical.Event
 	Tz      *time.Location
 	GetText func(ical.Prop) string

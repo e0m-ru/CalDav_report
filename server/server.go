@@ -40,7 +40,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func mainPage(w http.ResponseWriter, r *http.Request) {
+func reportPage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	//TODO date time range from url path
@@ -112,9 +112,10 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 
 func RunServer() {
 	mux := http.NewServeMux()
-
+	fs := http.FileServer(http.Dir("static/"))
 	mux.HandleFunc("/echo", echo)
-	mux.HandleFunc("/", mainPage)
+	mux.HandleFunc("/report", reportPage)
+	mux.Handle("/static/", http.StripPrefix("/static", fs))
 
 	fmt.Println("Server listening on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))

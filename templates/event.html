@@ -1,50 +1,58 @@
-{{ $Tz := .Tz }} 
-{{ $MAIN := . }} 
+{{ $Tz := .Tz }}
+{{ $MAIN := . }}
 <tr>
-    {{ if .Event.Component.Props.DTSTART }}
+    {{ $START := (index .Event.Component.Props.DTSTART 0)}}
+
     <td scope="row">
-        {{ range $e := .Event.Component.Props.DTSTART }}
-                {{ ($e.DateTime $Tz).Format "02" }}
+        {{ ($START.DateTime $Tz).Format "March 02" }}
     </td>
+
     <td>
-        {{ ($e.DateTime $Tz).Format "15:04" }}
-            {{ end }}
+        {{ if .Event.Component.Props.LOCATION }}
+        {{ range $e := .Event.Component.Props.LOCATION}}
+        {{ .Value }}
+        {{ end }}
+        {{ else }}
+        {{ if .Event.Props.CATEGORIES }}
+        {{ (index .Event.Props.CATEGORIES 0).Value }}
+        {{ else }}
+        {{ .Name }}
+        {{ end }}
+        {{ end }}
+    </td>
+    <td style="overflow: hidden;">
+        {{ if .Event.Component.Props.SUMMARY }}
+        {{ range $e := .Event.Component.Props.SUMMARY }}
+        {{ call $MAIN.GetText .}}
+        {{ end }}
+        {{ end }}
+    </td>
+    
+    {{ $UID := (index .Event.Component.Props.UID 0).Value }}
+    {{ range $w := .Works}}
+    <td>
+            <input type="checkbox" class="btn-check" id="{{ $w }} {{ $UID }}" autocomplete="off">
+            <label class="btn btn-outline-primary" for="{{ $w }} {{ $UID }}">{{ $w }}</label><br>
     </td>
     {{ end }}
 
     <td>
+        {{ ($START.DateTime $Tz).Format "15:04" }}
+    </td>
+
+    <td>
         {{ if .Event.Component.Props.DTEND }}
-            {{ range $e := .Event.Component.Props.DTEND }}
-                {{ ($e.DateTime $Tz).Format "15:04" }}
-            {{ end }}
+        {{ range $e := .Event.Component.Props.DTEND }}
+        {{ ($e.DateTime $Tz).Format "15:04" }}
+        {{ end }}
         {{ end }}
     </td>
     <td>
-        {{ if .Event.Component.Props.LOCATION }}
-            {{ range $e := .Event.Component.Props.LOCATION}}
-                {{ .Value }}
-            {{ end }}
-        {{ else }}
-            {{ if .Event.Props.CATEGORIES }}
-                {{ (index .Event.Props.CATEGORIES 0).Value }}
-            {{ else }}
-                {{ .Name }}
-            {{ end }}
-        {{ end }}
-    </td>
-    <td style="overflow: hidden;">
-            {{ if .Event.Component.Props.SUMMARY }}
-                {{ range $e := .Event.Component.Props.SUMMARY }}
-                    {{ call $MAIN.GetText .}}
-                {{ end }}
-            {{ end }}
-        </td>
-
-    <td >
         {{ if .Event.Component.Props.DESCRIPTION }}
-            {{ range $e := .Event.Component.Props.DESCRIPTION }}
-                {{ call $MAIN.GetText .}}
-            {{ end }}
+        {{ range $e := .Event.Component.Props.DESCRIPTION }}
+        {{ call $MAIN.GetText .}}
+        {{ end }}
         {{ end }}
     </td>
+
 </tr>

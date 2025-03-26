@@ -10,18 +10,45 @@
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
         <title>Отчёт</title>
-</head> makihg html таблица
-Makes a HTML table
+        <style>
+            th {
+                cursor: pointer;
+                user-select: none;
+            }
+        
+            th.sortable::after {
+                content: ' ↕';
+                font-size: 0.8em;
+            }
+        
+            th.asc::after {
+                content: ' ▲';
+                color: green;
+            }
+        
+            th.desc::after {
+                content: ' ▼';
+                color: red;
+            }
+        </style>
+</head>
 <body>
-    <table class="table table-primary table-hover table-bordered">
+    <table id="sortableTable" class="table table-primary table-hover table-bordered">
         <thead>
             <tr class="table-secondary" style=" position: sticky; top: 0;">
-                <th scope="col">дата</th>
-                <th scope="col">начало</th>
-                <th scope="col">конец</th>
-                <th scope="col">место</th>
-                <th scope="col">заголовок</th>
-                <th scope="col">детали</th>
+                <th scope="col" class="sortable">дата</th>
+                <th scope="col" class="sortable">место</th>
+                <th scope="col" class="sortable">заголовок</th>
+                <th scope="col" class="sortable">фото</th>
+                <th scope="col" class="sortable">видео</th>
+                <th scope="col" class="sortable">звук</th>
+                <th scope="col" class="sortable">синхрон</th>
+                <th scope="col" class="sortable">транс</th>
+                <th scope="col" class="sortable">зкран</th>
+
+                <th scope="col" >начало</th>
+                <th scope="col" >конец</th>
+                <th scope="col" >детали</th>
             </tr>
         </thead>
         {{ block "event.html" .}}
