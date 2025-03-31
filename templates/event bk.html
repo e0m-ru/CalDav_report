@@ -1,0 +1,66 @@
+{{ define "event" }}
+{{ $Tz := .Tz }}
+{{ $MAIN := . }}
+<tr>
+    {{ $START := (index .Event.Component.Props.DTSTART 0)}}
+
+    <td scope="row" style="width: 1rem;">
+        {{ ($START.DateTime $Tz).Format "03.01.06" }}
+    </td>
+
+    <td style="width: 1rem;">
+        {{ if .Event.Component.Props.LOCATION }}
+        {{ range $e := .Event.Component.Props.LOCATION}}
+        {{ .Value }}
+        {{ end }}
+        {{ else }}
+        {{ if .Event.Props.CATEGORIES }}
+        {{ (index .Event.Props.CATEGORIES 0).Value }}
+        {{ else }}
+        {{ .Name }}
+        {{ end }}
+        {{ end }}
+    </td>
+    <td style="width: 75rem; font-weight: 600;" class="text-secondary">
+        {{ if .Event.Component.Props.SUMMARY }}
+        {{ range $e := .Event.Component.Props.SUMMARY }}
+        {{ call $MAIN.GetText .}}
+        {{ end }}
+        {{ end }}
+    </td>
+    
+    {{ $UID := (index .Event.Component.Props.UID 0).Value }}
+    {{ range $w := .Works}}
+    <td style="width: 2rem;">
+            <input type="checkbox" class="btn-check" id="{{ $w }} {{ $UID }}" autocomplete="off" 
+            {% if .Event.Component.SUMMARY %}
+                checked
+            {% end %}
+            >
+            <label class="btn btn-outline-primary" for="{{ $w }} {{ $UID }}">{{ $w }}</label><br>
+    </td>
+    {{ end }}
+
+    <td style="width: 1rem;">
+        {{ ($START.DateTime $Tz).Format "15:04" }}
+    </td>
+
+<td style="width: 1rem;">
+        {{ if .Event.Component.Props.DTEND }}
+        {{ range $e := .Event.Component.Props.DTEND }}
+        {{ ($e.DateTime $Tz).Format "15:04" }}
+        {{ end }}
+        {{ end }}
+    </td>
+    <td style="width: 25rem;">
+        {{ if .Event.Component.Props.DESCRIPTION }}
+        {{ range $e := .Event.Component.Props.DESCRIPTION }}
+        <details>
+            <summary></summary>
+            {{ call $MAIN.GetText .}}
+        </details>
+        {{ end }}
+        {{ end }}
+    </td>
+</tr>
+{{end}}

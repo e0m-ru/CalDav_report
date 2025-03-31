@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/emersion/go-ical"
-	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
 	"github.com/google/uuid"
 )
@@ -15,12 +14,6 @@ import (
 var (
 	dateFormatString = "2006-01-02"
 )
-
-func NewCalDavClient(user, pwd, url string) (caldav.Client, error) {
-	c := webdav.HTTPClientWithBasicAuth(nil, user, pwd)
-	client, err := caldav.NewClient(c, url)
-	return client, err
-}
 
 func GetCalendars(ctx context.Context, client caldav.Client) (calendars []caldav.Calendar, err error) {
 

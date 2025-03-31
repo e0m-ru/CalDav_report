@@ -2,7 +2,6 @@ package report
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"log"
 	"mime"
@@ -78,59 +77,73 @@ func (r *DateRangeReport) QueryCalendarData(calendar caldav.Calendar) (lst []cal
 
 func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 	mime.AddExtensionType(".css", "text/css") // Ensure correct MIME type for CSS files
-	// Инициализация шаблона
-	tmpl, err := template.New("CalDav").ParseGlob("templates/*")
+
+	baseT, err := template.ParseGlob("templates/base/*")
 	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	err = tmpl.ExecuteTemplate(
-		w,
-		"index.html",
-		"",
-	)
-	for k, v := range *r.Reports {
-		for _, events := range *v {
-			for _, e := range events.Data.Events() {
-				err = tmpl.ExecuteTemplate(
-					w,
-					"event.html",
-					dataForTemplate{
-						Name:    k,
-						Event:   e,
-						Tz:      time.Now().Location(),
-						GetText: GetText,
-						Works: []string{
-							"Ф",
-							"В",
-							"З",
-							"С",
-							"Т",
-							"Э",
-						},
-					})
-				if err != nil {
-					fmt.Fprint(w, err)
-				}
-			}
-		}
-	}
-	_, err = fmt.Fprint(w, `</table>
-	        <script src='static/js/tablesort.js'></script>
-</body>
-</html>`)
-	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Parse:", err)
 	}
 
+	reportT, err := baseT.ParseFiles("templates/report.html", "templates/events.html", "templates/event.html")
+	if err != nil {
+		log.Fatal("Parse report", err)
+	}
+
+	d := dataForTemplate{
+		Reports: r.Reports,
+		Tz:      time.Now().Location(),
+		GetText: GetText,
+		Works: map[string]bool{
+			"Ф": true,
+			"В": true,
+			"З": true,
+			"С": true,
+			"Т": true,
+			"К": true,
+			"Э": true,
+		},
+	}
+
+	err = reportT.ExecuteTemplate(w, "base", d)
+	if err != nil {
+		log.Fatal("Execute", err)
+	}
+	// for k, v := range *r.Reports {
+	// 	for _, events := range *v {
+	// 		for _, e := range events.Data.Events() {
+	// 			err = tmpl.ExecuteTemplate(
+	// 				w,
+	// 				"event.html",
+	// 				dataForTemplate{
+	// 					Name:    k,
+	// 					Event:   e,
+	// 					Tz:      time.Now().Location(),
+	// 					GetText: GetText,
+	// 					Works: map[string]bool{
+	// 						"Ф": true,
+	// 						"В": true,
+	// 						"З": true,
+	// 						"С": true,
+	// 						"Т": true,
+	// 						"К": true,
+	// 						"Э": true,
+	// 					},
+	// 				})
+	// 			if err != nil {
+	// 				fmt.Fprint(w, err)
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 type dataForTemplate struct {
-	Name    string
-	Works   []string
-	Event   ical.Event
-	Tz      *time.Location
-	GetText func(ical.Prop) string
+	Reports  *map[string]*[]caldav.CalendarObject
+	Name     string
+	Works    map[string]bool
+	Event    ical.Event
+	Tz       *time.Location
+	GetText  func(ical.Prop) string
+	getWorks func(ical.Prop) map[string]bool
 }
 
 func GetText(p ical.Prop) string {

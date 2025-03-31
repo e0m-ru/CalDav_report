@@ -1,5 +1,5 @@
 /.env
 /__debug_bin1457027646.exe
-cert.pem
-key.pem
+*crt*
+*key*
 .gitignore
