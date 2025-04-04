@@ -1,11 +1,10 @@
 {{ define "content" }}
-<div class="container">
+<div class="">
     <div class="m-3 ">
-        <h1 class="display-2">Отчёт за месяц</h1>
         <form method="POST" action="/">
             <div class="input-group input-group-lg">
-                <!-- <span class="input-group-text " id="basic-addon1">Отчёт за месяц:</span> -->
-                <input class="form-control border-primary text-primary" type="month" id="month" name="month" required value='{{ .TimeRange.Now.Format "2006-01" }}'>
+                <span class="input-group-text " id="basic-addon1">Отчёт за месяц:</span>
+                <input style="max-width: 12rem;" class="form-control border-primary text-primary" type="month" id="month" name="month" required value='{{ .TimeRange.Now.Format "2006-01" }}'>
                 <button type="submit" class="btn btn-primary">Генерировать отчет</button>
             </div>
             <div class="input-group">

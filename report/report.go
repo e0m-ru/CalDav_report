@@ -6,14 +6,12 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/e0m-ru/echoserver/caldavclient"
 	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
-	"github.com/gorilla/mux"
 )
 
 type dataForTemplate struct {
@@ -26,6 +24,17 @@ type dataForTemplate struct {
 	getWorks func(ical.Prop) map[string]bool
 }
 
+// TimeRange представляет временной диапазон
+type TimeRange struct {
+	start, end, Now time.Time
+}
+
+type calendarData struct {
+	name    string
+	objList *[]caldav.CalendarObject
+	err     error
+}
+
 // DateRangeReport представляет отчет по диапазону дат
 type DateRangeReport struct {
 	calDavPrincipal   *caldavclient.CalDavPrincipal
@@ -36,32 +45,24 @@ type DateRangeReport struct {
 	SelectedCalendars map[string]bool
 }
 
-// TimeRange представляет временной диапазон
-type TimeRange struct {
-	start, end, Now time.Time
-}
-
 // NewDateRangeReport создает новый отчет по диапазону дат
-func NewDateRangeReport(
-	ctx context.Context,
-	start, end time.Time,
-	request *http.Request) (r DateRangeReport, err error) {
+func NewDateRangeReport(start, end time.Time) (r DateRangeReport, err error) {
+	n := time.Now()
 	client, err := caldavclient.NewClient()
 	if err != nil {
 		return DateRangeReport{}, fmt.Errorf("Ошибка webDav создания клиента: %e", err)
 	}
 	report := DateRangeReport{
 		calDavPrincipal: &caldavclient.CalDavPrincipal{
-			Ctx:    ctx,
+			Ctx:    context.Background(),
 			Client: client,
 		},
 		TimeRange: TimeRange{
 			start: start,
 			end:   end,
-			Now:   time.Now(),
+			Now:   n,
 		},
 		Reports:           make(map[string]*[]caldav.CalendarObject),
-		Request:           request,
 		SelectedCalendars: make(map[string]bool),
 	}
 	report.calDavPrincipal.Query = caldavclient.BuildDateRangeQuery(report.TimeRange.start, report.TimeRange.end)
@@ -160,45 +161,4 @@ func ParseBaseTemplate() (*template.Template, error) {
 		return baseT, err
 	}
 	return baseT, nil
-}
-
-type calendarData struct {
-	name    string
-	objList *[]caldav.CalendarObject
-	err     error
-}
-
-func parseDateFromPath(r *http.Request) (start time.Time, err error) {
-	var (
-		year, month, day int
-	)
-	vars := mux.Vars(r)
-	now := time.Now()
-	if y, ok := vars["year"]; ok {
-		year, err = strconv.Atoi("20" + y)
-		if err != nil {
-			return time.Time{}, err
-		}
-	} else {
-		year = now.Year()
-	}
-
-	if m, ok := vars["month"]; ok {
-		month, err = strconv.Atoi(m)
-		if err != nil {
-			return time.Time{}, err
-		}
-	} else {
-		month = int(now.Month())
-	}
-	if d, ok := vars["day"]; ok {
-		day, err = strconv.Atoi(d)
-		if err != nil {
-			return time.Time{}, err
-		}
-	} else {
-		day = now.Day()
-	}
-
-	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.Now().Location()), nil
 }

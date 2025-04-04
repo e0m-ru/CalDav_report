@@ -15,8 +15,8 @@ var (
 func ReportPage(w http.ResponseWriter, r *http.Request) {
 	var selectedMonth string
 	var selectedCalendars = make(map[string]bool)
-	start, end := time.Now(), time.Now()
 	var err error
+	var start, end time.Time
 
 	// Обработка данных формы
 	if r.Method == http.MethodPost {
@@ -31,20 +31,24 @@ func ReportPage(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Не получилось распознать дату", http.StatusBadRequest)
 		}
 		end = start.AddDate(0, 1, 0)
-		// Получение выбранных календарей
-		for _, c := range r.Form["calendars"] {
-			selectedCalendars[c] = true
-		}
 	} else {
 		// Установить значения по умолчанию для GET-запроса
 		selectedMonth = now.Format("2006-01")
+		start = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		end = start.AddDate(0, 1, 0)
 	}
 
 	// Создание объекта отчёта
-	R, err := NewDateRangeReport(ctx, start, end, r)
+	R, err := NewDateRangeReport(start, end)
+	R.Request = r
 	if err != nil {
 		http.Error(w, "Ошибка создания объекта отчёта: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	// Получение выбранных календарей
+	for _, c := range r.Form["calendars"] {
+		selectedCalendars[c] = true
 	}
 
 	// Получение данных
@@ -75,8 +79,9 @@ func ReportPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Передача данных в шаблон
+	// TODO ?? это кажется лишним.
 	R.TimeRange.Now, _ = time.Parse("2006-01", selectedMonth)
+
 	if r.Method == http.MethodPost {
 		R.SelectedCalendars = selectedCalendars
 	}
