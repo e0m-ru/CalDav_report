@@ -6,7 +6,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/e0m-ru/echoserver/config"
 	"github.com/emersion/go-ical"
+	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
 	"github.com/google/uuid"
 )
@@ -14,6 +16,13 @@ import (
 var (
 	dateFormatString = "2006-01-02"
 )
+
+// CalDavPrincipal представляет клиента CalDAV и контекст для запросов
+type CalDavPrincipal struct {
+	Ctx    context.Context
+	Client caldav.Client
+	Query  caldav.CalendarQuery
+}
 
 func GetCalendars(ctx context.Context, client caldav.Client) (calendars []caldav.Calendar, err error) {
 
@@ -74,4 +83,14 @@ func NewCalendar(event *ical.Event) *ical.Calendar {
 		log.Fatal(err)
 	}
 	return cal
+}
+
+func NewClient() (client caldav.Client, err error) {
+	C := config.LoadConifg()
+	c := webdav.HTTPClientWithBasicAuth(nil, C.YaAuth.YAUSER, C.YaAuth.CALPWD)
+	client, err = caldav.NewClient(c, C.YaAuth.YACAL)
+	if err != nil {
+		return caldav.Client{}, err
+	}
+	return
 }

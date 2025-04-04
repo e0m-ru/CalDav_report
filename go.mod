@@ -6,6 +6,7 @@ require (
 	github.com/emersion/go-ical v0.0.0-20250313142940-aefc67679264
 	github.com/emersion/go-webdav v0.6.0
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
 )
 

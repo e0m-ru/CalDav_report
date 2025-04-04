@@ -1,0 +1,11 @@
+{{ define "events" }}
+{{ $MAIN := . }}
+{{ range $key, $value := .Reports }}
+{{ range $events := $value }}
+{{ range $e := $events.Data.Events }}
+<tr>{{ template "event" (dict "Event" $e "Main" $MAIN "key" $key) }}</tr>
+{{ end }}
+{{ end }}
+{{ end }}
+<script src="/static/js/tableSort.js"></script>
+{{ end }}
