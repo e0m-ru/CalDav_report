@@ -2,21 +2,25 @@
 <div class="">
     <div class="m-3 ">
         <form method="POST" action="/">
-            <div class="input-group input-group-lg">
+            <div class="input-group input-group-lg m-3">
                 <span class="input-group-text " id="basic-addon1">Отчёт за месяц:</span>
                 <input style="max-width: 12rem;" class="form-control border-primary text-primary" type="month" id="month" name="month" required value='{{ .TimeRange.Now.Format "2006-01" }}'>
                 <button type="submit" class="btn btn-primary">Генерировать отчет</button>
+                <button class="btn btn-secondary" onclick="exportToExcelXLSX()">Скачать EXCEL</button>
             </div>
             <div class="input-group">
             {{ range $v := .Calendars }}
+            {{ if eq $v.Name "Командировки/Отпуска/Больничные" }}
+            {{ else }}
             <input type="checkbox" class="btn-check" id="{{ $v.Name }}" name="calendars" value="{{ $v.Name }}" autocomplete="off"
             {{ if index $.SelectedCalendars $v.Name }}
                 checked
             {{ end }}>
                     <label class="btn btn-outline-primary" for="{{ $v.Name }}">{{ $v.Name }}</label><br>
             {{ end }}
+            {{ end }}
             </div>
     </div>
 </div>
-
+<script src="/static/js/excel.js"></script>
 {{ end }}

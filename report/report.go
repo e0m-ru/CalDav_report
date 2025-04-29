@@ -20,7 +20,7 @@ type dataForTemplate struct {
 	Works    map[string]bool
 	Event    ical.Event
 	Tz       *time.Location
-	GetText  func(ical.Prop) string
+	GetText  func(ical.Prop) template.HTML
 	getWorks func(ical.Prop) map[string]bool
 }
 
@@ -93,11 +93,11 @@ func (r *DateRangeReport) QueryCalendarData(calendar caldav.Calendar) (lst []cal
 }
 
 // dict создает карту для передачи данных в шаблон
-func Dict(values ...interface{}) (map[string]interface{}, error) {
+func Dict(values ...any) (map[string]any, error) {
 	if len(values)%2 != 0 {
 		return nil, fmt.Errorf("invalid dict call: uneven number of arguments")
 	}
-	d := make(map[string]interface{}, len(values)/2)
+	d := make(map[string]any, len(values)/2)
 	for i := 0; i < len(values); i += 2 {
 		key, ok := values[i].(string)
 		if !ok {
@@ -108,13 +108,10 @@ func Dict(values ...interface{}) (map[string]interface{}, error) {
 	return d, nil
 }
 
-func GetText(p ical.Prop) string {
-	text, err := p.Text()
-	if err != nil {
-		s := strings.Replace(p.Value, "\\", "", -1)
-		return s
-	}
-	return text
+func GetText(p ical.Prop) template.HTML {
+	s := strings.Replace(p.Value, "\\n", "<br/>", -1)
+	s = strings.Replace(s, "\\", "", -1)
+	return template.HTML(s)
 }
 
 func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
@@ -161,4 +158,77 @@ func ParseBaseTemplate() (*template.Template, error) {
 		return baseT, err
 	}
 	return baseT, nil
+}
+
+// Изменяем
+func (r *DateRangeReport) ParseWorks() {
+	for _, report := range r.Reports {
+		for _, r := range *report {
+			props := r.Data.Events()[0].Component.Props
+
+			var cab string
+			if len(props["CATEGORIES"]) > 0 {
+				cab, _ = props["CATEGORIES"][0].Text()
+			}
+
+			if sc(cab, "111", "114", "505") {
+				ss(&props, "TV")
+			}
+
+			var sum string
+			if len(props["SUMMARY"]) > 0 {
+				sum, _ = props["SUMMARY"][0].Text()
+			}
+			var desc string
+			if len(props["DESCRIPTION"]) > 0 {
+				desc, _ = props["DESCRIPTION"][0].Text()
+			}
+			s := strings.ToLower(sum + " " + desc)
+
+			if sc(s, "вкс") {
+				ss(&props, "TV", "VKS", "SOUND", "VIDEO")
+			}
+			if sc(s, "видео", "теле") {
+				ss(&props, "VIDEO")
+			}
+			if sc(s, "суфл") {
+				ss(&props, "VIDEO", "TV", "SOUND")
+			}
+			if sc(s, "экран", "телевизор", "проектор", "презентац") {
+				ss(&props, "TV")
+			}
+			if sc(s, "аудио", "звук") {
+				ss(&props, "SOUND")
+			}
+			if sc(s, "синх", "перев", "анг", "фра") {
+				ss(&props, "SOUND", "SYNCH")
+			}
+			if sc(s, "трансл") {
+				ss(&props, "VIDEO", "TRANS", "SOUND")
+			}
+			if sc(s, "фото") {
+				ss(&props, "PHOTO")
+			}
+
+			// fmt.Printf("%v\n", props["TV"][0])
+		}
+	}
+}
+
+func ss(p *ical.Props, s ...string) {
+	for _, v := range s {
+		p.Add(&ical.Prop{
+			Name:  v,
+			Value: "true",
+		})
+	}
+}
+
+func sc(S string, s ...string) bool {
+	for _, v := range s {
+		if strings.Contains(S, v) {
+			return true
+		}
+	}
+	return false
 }

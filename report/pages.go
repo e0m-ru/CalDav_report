@@ -86,6 +86,8 @@ func ReportPage(w http.ResponseWriter, r *http.Request) {
 		R.SelectedCalendars = selectedCalendars
 	}
 
+	R.ParseWorks()
+
 	// Парсим шаблон
 	baseT, err := ParseBaseTemplate()
 	if err != nil {
