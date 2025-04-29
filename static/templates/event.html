@@ -3,8 +3,9 @@
 {{ $START := (index $Props.DTSTART 0)}}
 {{ $getText := .Main.GetText }}
 {{ $Tz := .Main.Tz }}
-<td style="width: 5em;">{{ ($START.DateTime $Tz).Format "06.01.02" }}</td>
-<td style="width: 5rem;">{{ if $Props.LOCATION }}
+<td><span class="badge text-bg-primary">{{ ($START.DateTime $Tz).Format "06.01.2002" }}</span>
+</td>
+<td>{{ if $Props.LOCATION }}
     {{ range $e := $Props.LOCATION}}
     {{ call $getText . }}
     {{ end }}
@@ -15,74 +16,44 @@
     {{ .key }}
     {{ end }}
     {{ end }}</td>
-<td style="width: 20rem;">{{ if $Props.SUMMARY }}
+<td>{{ if $Props.SUMMARY }}
     {{ range $e := $Props.SUMMARY }}
     {{ (call $getText .) }}
     {{ end }}
     {{ end }}</td>
 {{ $UID := (index $Props.UID 0).Value }}
-{{ range $k, $v := .Main.Works}}<td style="width: 2rem;">
-    <input type="checkbox" class="btn-check" id="{{ $k }} {{ $UID }}" autocomplete="off"
-    {{ if $Props.TV }}
-    {{ if eq $k "Э" }}
-        checked 
-        {{end}}
-    {{ end }}
-    {{ if $Props.VKS }}
-    {{ if eq $k "К" }}
-        checked 
-        {{end}}
-    {{ end }}
-    {{ if $Props.VIDEO }}
-    {{ if eq $k "В" }}
-        checked 
-        {{end}}
-    {{ end }}
-    {{ if $Props.SOUND }}
-    {{ if eq $k "З" }}
-    checked 
-    {{end}}
-    {{ end }}
-    {{ if $Props.SYNCH }}
-    {{ if eq $k "С" }}
-        checked 
-        {{end}}
-    {{ end }}
-    {{ if $Props.TRANS }}
-    {{ if eq $k "Т" }}
-        checked 
-        {{end}}
-    {{ end }}
-    {{ if $Props.PHOTO }}
-    {{ if eq $k "Ф" }}
-        checked 
-        {{end}}
-    {{ end }}
-    >
+{{ range $k, $v := .Main.Works}}<td>
+    <input type="checkbox" class="btn-check" id="{{ $k }} {{ $UID }}" autocomplete="off" {{ if $Props.TV }} {{ if eq
+        $k "Э" }} checked {{end}} {{ end }} {{ if $Props.VKS }} {{ if eq $k "К" }} checked {{end}} {{ end }} {{ if
+        $Props.VIDEO }} {{ if eq $k "В" }} checked {{end}} {{ end }} {{ if $Props.SOUND }} {{ if eq $k "З" }} checked
+        {{end}} {{ end }} {{ if $Props.SYNCH }} {{ if eq $k "С" }} checked {{end}} {{ end }} {{ if $Props.TRANS }} {{ if
+        eq $k "Т" }} checked {{end}} {{ end }} {{ if $Props.PHOTO }} {{ if eq $k "Ф" }} checked {{end}} {{ end }}>
     <label class="btn btn-outline-primary" for="{{ $k }} {{ $UID }}">{{ $k }}</label><br>
 </td>{{ end }}
-<td style="width: 30em;"> {{ if $Props.DESCRIPTION }}
+<td><a href="{{ (index $Props.URL 0 ).Value }}" target="_blank" class="ms-1"><svg
+            xmlns="http://www.w3.org/2000/svg" class="ms-3" width="15" height="15" viewBox="0 0 20 20.092">
+            <style>
+                * {
+                    fill: rgba(var(--bs-link-color-rgb))
+                }
+            </style>
+            <g>
+                <polygon points="12 0 14.561 2.537 7.586 9.513 10.414 12.341 17.402 5.353 20 7.927 19.998 0 12 0" />
+                <polygon
+                    points="9 4.092 9 2.092 0 2.092 0 20.092 18 20.092 18 11.092 16 11.092 16 18.092 2 18.092 2 4.092 9 4.092" />
+            </g>
+        </svg></a>
+
+    <!-- {{ if $Props.DESCRIPTION }}
     {{ range $e := $Props.DESCRIPTION }}
     <details>
-        <summary>детали <a href="{{ (index $Props.URL 0 ).Value }}" target="_blank" class="ms-1"><svg xmlns="http://www.w3.org/2000/svg"
-                class="ms-3" width="15" height="15" viewBox="0 0 20 20.092">
-                <style>
-                    * {
-                        fill: rgba(var(--bs-link-color-rgb))
-                    }
-                </style>
-                <g>
-                    <polygon points="12 0 14.561 2.537 7.586 9.513 10.414 12.341 17.402 5.353 20 7.927 19.998 0 12 0" />
-                    <polygon
-                        points="9 4.092 9 2.092 0 2.092 0 20.092 18 20.092 18 11.092 16 11.092 16 18.092 2 18.092 2 4.092 9 4.092" />
-                </g>
-            </svg></a></summary>
-        <span class="badge text-bg-secondary">{{ ($START.DateTime $Tz).Format "15:04" }}-{{ if $Props.DTEND }}
-            {{ range $e := $Props.DTEND }}
-            {{ ($e.DateTime $Tz).Format "15:04" }}
-            {{ end }}
-            {{ end }}</span>
+        <summary>детали</summary>
+                <span class="badge text-bg-secondary">{{ ($START.DateTime $Tz).Format "15:04" }}-{{ if $Props.DTEND }}
+                    {{ range $e := $Props.DTEND }}
+                    {{ ($e.DateTime $Tz).Format "15:04" }}
+                    {{ end }}
+                    {{ end }}</span>
         <p>{{ call $getText .}}</p>
-    </details>{{ end }}{{ end }}
+    </details>{{ end }}{{ end }} -->
 
 </td>{{end}}
