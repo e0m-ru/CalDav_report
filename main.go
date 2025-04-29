@@ -1,8 +1,8 @@
 package main
 
-import "github.com/e0m-ru/echoserver/server"
+import "github.com/e0m-ru/caldavreport/server"
 
-// "github.com/e0m-ru/echoserver/server"
+// "github.com/e0m-ru/caldavreport/server"
 
 func main() {
 	// excel.Excelize()

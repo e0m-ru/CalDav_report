@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/e0m-ru/echoserver/report"
+	"github.com/e0m-ru/caldavreport/report"
 	"github.com/gorilla/mux"
 )
 

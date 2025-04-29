@@ -4,14 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/e0m-ru/echoserver/config"
+	"github.com/e0m-ru/caldavreport/config"
 	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
-)
-
-var (
-	dateFormatString = "2006-01-02"
 )
 
 // CalDavPrincipal представляет клиента CalDAV и контекст для запросов
@@ -57,14 +53,14 @@ func BuildDateRangeQuery(start, end time.Time) caldav.CalendarQuery {
 	return query
 }
 
-func NewClient() (client caldav.Client, err error) {
+func NewClient() (*caldav.Client, error) {
 	C := config.LoadConifg()
 	c := webdav.HTTPClientWithBasicAuth(nil, C.YaAuth.YAUSER, C.YaAuth.CALPWD)
-	client, err = caldav.NewClient(c, C.YaAuth.YACAL)
+	new_client, err := caldav.NewClient(c, C.YaAuth.YACAL)
 	if err != nil {
-		return caldav.Client{}, err
+		return &caldav.Client{}, err
 	}
-	return
+	return &new_client, nil
 }
 
 func NewEvent(title, desc, loc string, st, et time.Time) *ical.Event {

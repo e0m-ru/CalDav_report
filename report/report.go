@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/e0m-ru/echoserver/caldavclient"
+	"github.com/e0m-ru/caldavreport/caldavclient"
 	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
 )
@@ -55,7 +55,7 @@ func NewDateRangeReport(start, end time.Time) (r DateRangeReport, err error) {
 	report := DateRangeReport{
 		calDavPrincipal: &caldavclient.CalDavPrincipal{
 			Ctx:    context.Background(),
-			Client: client,
+			Client: *client,
 		},
 		TimeRange: TimeRange{
 			start: start,
