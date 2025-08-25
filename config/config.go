@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -39,9 +40,20 @@ type Config struct {
 
 // New returns a new Config struct
 func LoadConifg() *Config {
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	exeDir := filepath.Dir(exePath)
 	// loads values from .env into the system
-	if err := godotenv.Load(); err != nil {
-		panic("No .env file found")
+	err = godotenv.Load()
+	if err != nil {
+		// 3. Если не найден, пробуем рядом с бинарником
+		envPath := filepath.Join(exeDir, ".env")
+		err = godotenv.Load(envPath)
+		if err != nil {
+			log.Fatalf("Error loading .env file: %v", err)
+		}
 	}
 	portStr := getEnv("LOGLEVEL", "0")
 	loglevel, err := strconv.Atoi(portStr)

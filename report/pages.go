@@ -1,14 +1,12 @@
 package report
 
 import (
-	"context"
 	"net/http"
 	"sync"
 	"time"
 )
 
 var (
-	ctx = context.Background()
 	now = time.Now()
 )
 
@@ -95,7 +93,7 @@ func ReportPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reportT, err := baseT.ParseFiles("static/templates/reportRequestForm.html")
+	reportT, err := baseT.ParseFiles("templates/reportRequestForm.html")
 	if err != nil {
 		http.Error(w, "Ошибка парсинга шаблона: "+err.Error(), http.StatusInternalServerError)
 		return

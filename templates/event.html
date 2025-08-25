@@ -3,7 +3,7 @@
 {{ $START := (index $Props.DTSTART 0)}}
 {{ $getText := .Main.GetText }}
 {{ $Tz := .Main.Tz }}
-<td><span class="badge text-bg-primary">{{ ($START.DateTime $Tz).Format "06.01.2002" }}</span>
+<td><span class="badge text-bg-primary">{{ ($START.DateTime $Tz).Format "02.01.2006" }}</span>
 </td>
 <td>{{ if $Props.LOCATION }}
     {{ range $e := $Props.LOCATION}}

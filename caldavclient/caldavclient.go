@@ -2,6 +2,7 @@ package caldavclient
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/e0m-ru/caldavreport/config"
@@ -55,12 +56,13 @@ func BuildDateRangeQuery(start, end time.Time) caldav.CalendarQuery {
 
 func NewClient() (*caldav.Client, error) {
 	C := config.LoadConifg()
+	fmt.Printf("%v\n", C.YaAuth.CALPWD)
 	c := webdav.HTTPClientWithBasicAuth(nil, C.YaAuth.YAUSER, C.YaAuth.CALPWD)
 	new_client, err := caldav.NewClient(c, C.YaAuth.YACAL)
 	if err != nil {
 		return &caldav.Client{}, err
 	}
-	return &new_client, nil
+	return new_client, nil
 }
 
 func NewEvent(title, desc, loc string, st, et time.Time) *ical.Event {

@@ -121,7 +121,7 @@ func (r *DateRangeReport) PrintReport(w http.ResponseWriter) {
 		log.Fatal(err)
 	}
 
-	reportT, err := baseT.ParseFiles("static/templates/report.html", "static/templates/events.html", "static/templates/event.html")
+	reportT, err := baseT.ParseFiles("templates/report.html", "templates/events.html", "templates/event.html")
 	if err != nil {
 		log.Fatal("Parse report", err)
 	}
@@ -153,7 +153,7 @@ func ParseBaseTemplate() (*template.Template, error) {
 		"dict":    Dict, // Регистрация функции dict
 		"getText": GetText,
 	}
-	baseT, err := template.New("").Funcs(funcMap).ParseGlob("static/templates/base/*")
+	baseT, err := template.New("").Funcs(funcMap).ParseGlob("templates/base/*")
 	if err != nil {
 		return baseT, err
 	}
@@ -185,7 +185,10 @@ func (r *DateRangeReport) ParseWorks() {
 			}
 			s := strings.ToLower(sum + " " + desc)
 
-			if sc(s, "вкс") {
+			if sc(s, "бриф") {
+				ss(&props, "TV", "VKS", "SOUND", "VIDEO", "PHOTO", "TV", "SYNCH", "TRANS")
+			}
+			if sc(s, "вкс", "бриф") {
 				ss(&props, "TV", "VKS", "SOUND", "VIDEO")
 			}
 			if sc(s, "видео", "теле") {
@@ -194,17 +197,17 @@ func (r *DateRangeReport) ParseWorks() {
 			if sc(s, "суфл") {
 				ss(&props, "VIDEO", "TV", "SOUND")
 			}
-			if sc(s, "экран", "телевизор", "проектор", "презентац") {
+			if sc(s, "экран", "телевизор", "проектор", "презентац", "тв") {
 				ss(&props, "TV")
 			}
-			if sc(s, "аудио", "звук") {
+			if sc(s, "аудио", "звук", "микр") {
 				ss(&props, "SOUND")
 			}
 			if sc(s, "синх", "перев", "анг", "фра") {
 				ss(&props, "SOUND", "SYNCH")
 			}
 			if sc(s, "трансл") {
-				ss(&props, "VIDEO", "TRANS", "SOUND")
+				ss(&props, "VIDEO", "TRANS")
 			}
 			if sc(s, "фото") {
 				ss(&props, "PHOTO")
