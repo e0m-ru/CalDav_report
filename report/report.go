@@ -15,18 +15,17 @@ import (
 )
 
 type dataForTemplate struct {
-	Reports  map[string]*[]caldav.CalendarObject
-	Name     string
-	Works    map[string]bool
-	Event    ical.Event
-	Tz       *time.Location
-	GetText  func(ical.Prop) template.HTML
-	getWorks func(ical.Prop) map[string]bool
+	Reports map[string]*[]caldav.CalendarObject
+	Name    string
+	Works   map[string]bool
+	Event   ical.Event
+	Tz      *time.Location
+	GetText func(ical.Prop) template.HTML
 }
 
 // TimeRange представляет временной диапазон
 type TimeRange struct {
-	start, end, Now time.Time
+	Start, End, Now time.Time
 }
 
 type calendarData struct {
@@ -50,7 +49,7 @@ func NewDateRangeReport(start, end time.Time) (r DateRangeReport, err error) {
 	n := time.Now()
 	client, err := caldavclient.NewClient()
 	if err != nil {
-		return DateRangeReport{}, fmt.Errorf("Ошибка webDav создания клиента: %e", err)
+		return DateRangeReport{}, fmt.Errorf("ошибка webDav создания клиента: %e", err)
 	}
 	report := DateRangeReport{
 		calDavPrincipal: &caldavclient.CalDavPrincipal{
@@ -58,14 +57,14 @@ func NewDateRangeReport(start, end time.Time) (r DateRangeReport, err error) {
 			Client: *client,
 		},
 		TimeRange: TimeRange{
-			start: start,
-			end:   end,
+			Start: start,
+			End:   end,
 			Now:   n,
 		},
 		Reports:           make(map[string]*[]caldav.CalendarObject),
 		SelectedCalendars: make(map[string]bool),
 	}
-	report.calDavPrincipal.Query = caldavclient.BuildDateRangeQuery(report.TimeRange.start, report.TimeRange.end)
+	report.calDavPrincipal.Query = caldavclient.BuildDateRangeQuery(report.TimeRange.Start, report.TimeRange.End)
 	if err := report.getCalendars(); err != nil {
 		return report, err
 	}

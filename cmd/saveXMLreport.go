@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"slices"
 	"sync"
 	"time"
@@ -37,20 +39,30 @@ var (
 		{"TV", "ТВ"},
 		{"SYNCH", "синих."},
 	}
+	NOW     = time.Now()
+	logFile *os.File
+	appID   = "CALDAVREPORT"
 )
 
 func main() {
-	now := time.Now()
-	month := flag.Int("m", int(now.Month()), "Укажите месяц")
-	year := flag.Int("y", now.Year(), "Укажите год")
+
+	month := flag.Int("m", int(NOW.Month()), "Укажите месяц")
+	year := flag.Int("y", NOW.Year(), "Укажите год")
+	logfileName := flag.String("f", "STDOUT", "Файл логирования")
 	flag.Parse()
 
-	start := time.Date(*year, time.Month(*month), 1, 0, 0, 0, 0, now.Location())
+	logger, err := LogInit(*logfileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer LogClose()
+
+	start := time.Date(*year, time.Month(*month), 1, 0, 0, 0, 0, NOW.Location())
 	end := start.AddDate(0, 1, 0)
 
 	R, err := report.NewDateRangeReport(start, end)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	var wg sync.WaitGroup
@@ -73,13 +85,22 @@ func main() {
 
 	for v := range out {
 		if v.err != nil {
-			log.Fatal(v.err)
+			logger.Fatal(v.err)
 		}
 		R.Reports[v.name] = v.objList
 	}
+
 	R.ParseWorks()
 
+	err = saveExcel(R)
+	if err != nil {
+		logger.Fatal(err)
+	}
+}
+
+func saveExcel(R report.DateRangeReport) error {
 	f := excelize.NewFile()
+
 	h1, _ := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
 			Size: 24,
@@ -120,6 +141,7 @@ func main() {
 			{Type: "right", Color: "000000", Style: 1},
 		},
 	})
+
 	f.SetColWidth("Sheet1", "C", "C", 50)
 
 	for letter := 'A'; letter <= 'J'; letter++ {
@@ -127,7 +149,7 @@ func main() {
 	}
 
 	// Set value on Sheet1
-	f.SetCellValue("Sheet1", "A1", "Отчёт Пресс-центра "+start.Format("01.2006"))
+	f.SetCellValue("Sheet1", "A1", "Отчёт Пресс-центра "+R.TimeRange.Start.Format("01.2006"))
 	f.SetCellStyle("Sheet1", "A1", "A1", h1)
 
 	f.SetCellValue("Sheet1", "A2", "Дата")
@@ -188,16 +210,43 @@ func main() {
 			ShowCatName: true,
 		},
 	}); err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 
 	// Save spreadsheet
-	if err := f.SaveAs(fmt.Sprintf("./report_%02d.xlsx", start.Month())); err != nil {
-		log.Println(err)
+	if err := f.SaveAs(fmt.Sprintf("./report_%02d.xlsx", R.TimeRange.Start.Month())); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Logger initiation. Default os.Stdout
+func LogInit(logFileName string) (logger *log.Logger, err error) {
+	var out io.Writer
+	if logFileName != "STDOUT" {
+		logFile, err = os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			return &log.Logger{}, err
+		}
+		out = logFile
+	} else {
+		out = os.Stdout
+	}
+	logger = log.New(out, appID+": ", log.Ldate|log.Ltime|log.Lshortfile)
+	return
+}
+
+// Close the logger
+func LogClose() {
+	if logFile != nil {
+		err := logFile.Close()
+		if err != nil {
+			log.Println("Ошибка при закрытии файла логов:", err)
+		}
 	}
 }
 
+// Parse report to table
 func ParseReport(R report.DateRangeReport) [][]string {
 	rows := make([][]string, 0)
 	for name, calendars := range R.Reports {

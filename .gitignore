@@ -6,3 +6,5 @@
 /bin
 monthreport
 .gitignore
+*.log
+*.xlsx
