@@ -218,6 +218,7 @@ func (r *DateRangeReport) ParseWorks() {
 	}
 }
 
+// добавляем свойства
 func ss(p *ical.Props, s ...string) {
 	for _, v := range s {
 		p.Add(&ical.Prop{
@@ -227,6 +228,7 @@ func ss(p *ical.Props, s ...string) {
 	}
 }
 
+// проверяем свойства
 func sc(S string, s ...string) bool {
 	for _, v := range s {
 		if strings.Contains(S, v) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"slices"
@@ -21,8 +22,13 @@ type calendarData struct {
 	err     error
 }
 
+type Category struct {
+	Tag  string `json:"tag"`
+	Name string `json:"name"`
+}
+
 var (
-	works = []struct{ a, b string }{
+	categories = []Category{
 		{"SOUND", "звук"},
 		{"VIDEO", "видео"},
 		{"PHOTO", "фото"},
@@ -35,14 +41,18 @@ var (
 
 func main() {
 	now := time.Now()
+	month := flag.Int("m", int(now.Month()), "Укажите месяц")
+	year := flag.Int("y", now.Year(), "Укажите год")
+	flag.Parse()
 
-	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	start := time.Date(*year, time.Month(*month), 1, 0, 0, 0, 0, now.Location())
 	end := start.AddDate(0, 1, 0)
 
 	R, err := report.NewDateRangeReport(start, end)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var wg sync.WaitGroup
 	var out = make(chan calendarData, len(R.Calendars))
 
@@ -178,13 +188,13 @@ func main() {
 			ShowCatName: true,
 		},
 	}); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
 	// Save spreadsheet
 	if err := f.SaveAs(fmt.Sprintf("./report_%02d.xlsx", start.Month())); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }
 
@@ -207,9 +217,9 @@ func ParseReport(R report.DateRangeReport) [][]string {
 				text, _ := event.Props.Get(ical.PropSummary).Text()
 				row = append(row, text)
 
-				for _, w := range works {
-					if event.Props.Get(w.a) != nil {
-						row = append(row, w.b) //✔
+				for _, w := range categories {
+					if event.Props.Get(w.Tag) != nil {
+						row = append(row, w.Name) //✔
 					} else {
 						row = append(row, "")
 					}
