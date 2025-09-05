@@ -37,7 +37,7 @@ var (
 		{"TRANS", "эфир"},
 		{"VKS", "ВКС"},
 		{"TV", "ТВ"},
-		{"SYNCH", "синих."},
+		{"SYNCH", "синхрон"},
 	}
 	NOW     = time.Now()
 	logFile *os.File
