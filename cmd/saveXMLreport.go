@@ -263,7 +263,11 @@ func ParseReport(R report.DateRangeReport) [][]string {
 					}
 				}
 				row = append(row, loc.Value)
-				text, _ := event.Props.Get(ical.PropSummary).Text()
+				text, err := event.Props.Get(ical.PropSummary).Text()
+				if err != nil {
+					text = event.Props.Get(ical.PropSummary).Value
+				}
+
 				row = append(row, text)
 
 				for _, w := range categories {
