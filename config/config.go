@@ -52,7 +52,7 @@ func LoadConifg() *Config {
 		envPath := filepath.Join(exeDir, ".env")
 		err = godotenv.Load(envPath)
 		if err != nil {
-			log.Fatalf("Error loading .env file: %v", err)
+			log.Printf("Error loading .env file: %v", err)
 		}
 	}
 	portStr := getEnv("LOGLEVEL", "0")
@@ -63,8 +63,8 @@ func LoadConifg() *Config {
 	return &Config{
 		Report: reportConfig{},
 		YaAuth: yacaldavConfig{
-			YAUSER: getEnv("YAUSER", "user@yandex.ru"),
-			CALPWD: getEnv("CALPWD", "PA$$w0rD"),
+			YAUSER: getEnv("YAUSER", "ctspi2011@yandex.ru"),
+			CALPWD: getEnv("CALPWD", "nxcpdpnegcbnqzgp"),
 			YACAL:  getEnv("YACAL", "https://caldav.yandex.ru"),
 		},
 		Net: net{
